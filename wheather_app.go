@@ -7,13 +7,27 @@ import (
 	"time"
 )
 
+var (
+	successCount = 0.0
+	totalCount   = 0.0
+)
+
 func main() {
 	conn, done := getConnection()
 	if done {
 		return
 	}
 
+	go func() {
+		for {
+			time.Sleep(time.Second)
+			fmt.Println("Availability ", successCount/totalCount)
+		}
+
+	}()
+
 	for {
+		totalCount++
 		if conn != nil {
 			_, err := conn.Exec(context.Background(), "insert into wheather values (now(), 'Yekaterinburg', random()*100 - 40)")
 			if err != nil {
@@ -22,7 +36,8 @@ func main() {
 					conn = nil
 				}
 			} else {
-				fmt.Println("Wheather was written")
+				//fmt.Println("Wheather was written")
+				successCount++
 			}
 		}
 
